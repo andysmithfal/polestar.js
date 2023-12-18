@@ -3,7 +3,7 @@
     "axios": "^1.6.2"
   },
   "name": "@andysmithfal/polestar.js",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "main": "polestar.js",
   "devDependencies": {},
   "scripts": {

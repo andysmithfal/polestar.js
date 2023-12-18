@@ -1,6 +1,8 @@
-#### polestar.js
+# polestar.js
 
 This a barebones Node.js module to facilitate access to the Polestar API. It has been reverse engineered based on the browser based functionality that became availavle on Polestar.com in December 2023. It is currently in development and I make no promises as to its reliability! 
+
+## Using the module
 
 To install the module: 
 
@@ -34,7 +36,7 @@ Once logged in and a vehicle has been set, you can call `getBattery()` and `getO
 
 Returns this:
 
-```
+```json
 {
   averageEnergyConsumptionKwhPer100Km: 23,
   batteryChargeLevelPercentage: 83,
@@ -59,7 +61,7 @@ Returns this:
 
 Will return: 
 
-```
+```json
 {
   averageSpeedKmPerHour: 30,
   eventUpdatedTimestamp: {
@@ -72,4 +74,23 @@ Will return:
   tripMeterManualKm: 1000,
   __typename: 'Odometer'
 }
+```
+
+
+## Full Example
+
+```javascript
+const Polestar = require("@andysmithfal/polestar.js")
+
+const polestar = new Polestar("email", "password")
+
+async function main(){
+    await polestar.login()
+    await polestar.setVehicle()
+
+    console.log(await polestar.getBattery())
+    console.log(await polestar.getOdometer())
+}
+
+main()
 ```
