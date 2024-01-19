@@ -251,7 +251,7 @@ class Polestar {
         }
 
         const response = await axios.get(
-            "https://pc-api.polestar.com/eu-north-1/my-star/?query=query%20GetBatteryData(%24vin%3A%20String!)%20%7B%0A%20%20getBatteryData(vin%3A%20%24vin)%20%7B%0A%20%20%20%20averageEnergyConsumptionKwhPer100Km%0A%20%20%20%20batteryChargeLevelPercentage%0A%20%20%20%20chargerConnectionStatus%0A%20%20%20%20chargingCurrentAmps%0A%20%20%20%20chargingPowerWatts%0A%20%20%20%20chargingStatus%0A%20%20%20%20estimatedChargingTimeMinutesToTargetDistance%0A%20%20%20%20estimatedChargingTimeToFullMinutes%0A%20%20%20%20estimatedDistanceToEmptyKm%0A%20%20%20%20estimatedDistanceToEmptyMiles%0A%20%20%20%20eventUpdatedTimestamp%20%7B%0A%20%20%20%20%20%20iso%0A%20%20%20%20%20%20unix%0A%20%20%20%20%20%20__typename%0A%20%20%20%20%7D%0A%20%20%20%20__typename%0A%20%20%7D%0A%7D&operationName=GetBatteryData&variables=%7B%22vin%22%3A%22"+this.#vehicle.vin+"%22%7D",
+            "https://pc-api.polestar.com/eu-north-1/mystar-v2?query=query%20GetBatteryData(%24vin%3A%20String!)%20%7B%0A%20%20getBatteryData(vin%3A%20%24vin)%20%7B%0A%20%20%20%20averageEnergyConsumptionKwhPer100Km%0A%20%20%20%20batteryChargeLevelPercentage%0A%20%20%20%20chargerConnectionStatus%0A%20%20%20%20chargingCurrentAmps%0A%20%20%20%20chargingPowerWatts%0A%20%20%20%20chargingStatus%0A%20%20%20%20estimatedChargingTimeMinutesToTargetDistance%0A%20%20%20%20estimatedChargingTimeToFullMinutes%0A%20%20%20%20estimatedDistanceToEmptyKm%0A%20%20%20%20estimatedDistanceToEmptyMiles%0A%20%20%20%20eventUpdatedTimestamp%20%7B%0A%20%20%20%20%20%20iso%0A%20%20%20%20%20%20unix%0A%20%20%20%20%20%20__typename%0A%20%20%20%20%7D%0A%20%20%20%20__typename%0A%20%20%7D%0A%7D&operationName=GetBatteryData&variables=%7B%22vin%22%3A%22"+this.#vehicle.vin+"%22%7D",
             {
                 headers: {
                     "cache-control": "no-cache",
@@ -276,7 +276,7 @@ class Polestar {
         }
 
         const response = await axios.get(
-            "https://pc-api.polestar.com/eu-north-1/my-star/?query=query%20GetOdometerData(%24vin%3A%20String!)%20%7B%0A%20%20getOdometerData(vin%3A%20%24vin)%20%7B%0A%20%20%20%20averageSpeedKmPerHour%0A%20%20%20%20eventUpdatedTimestamp%20%7B%0A%20%20%20%20%20%20iso%0A%20%20%20%20%20%20unix%0A%20%20%20%20%20%20__typename%0A%20%20%20%20%7D%0A%20%20%20%20odometerMeters%0A%20%20%20%20tripMeterAutomaticKm%0A%20%20%20%20tripMeterManualKm%0A%20%20%20%20__typename%0A%20%20%7D%0A%7D&operationName=GetOdometerData&variables=%7B%22vin%22%3A%22"+this.#vehicle.vin+"%22%7D",
+            "https://pc-api.polestar.com/eu-north-1/mystar-v2?query=query%20GetOdometerData(%24vin%3A%20String!)%20%7B%0A%20%20getOdometerData(vin%3A%20%24vin)%20%7B%0A%20%20%20%20averageSpeedKmPerHour%0A%20%20%20%20eventUpdatedTimestamp%20%7B%0A%20%20%20%20%20%20iso%0A%20%20%20%20%20%20unix%0A%20%20%20%20%20%20__typename%0A%20%20%20%20%7D%0A%20%20%20%20odometerMeters%0A%20%20%20%20tripMeterAutomaticKm%0A%20%20%20%20tripMeterManualKm%0A%20%20%20%20__typename%0A%20%20%7D%0A%7D&operationName=GetOdometerData&variables=%7B%22vin%22%3A%22"+this.#vehicle.vin+"%22%7D",
             {
                 headers: {
                     "cache-control": "no-cache",
