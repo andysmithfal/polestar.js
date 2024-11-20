@@ -57,12 +57,12 @@ class Polestar {
       const apiCreds = await this.#refreshToken()
       this.#storeToken(apiCreds)
     }
-
-    if (await this.#checkTokenValidity()) {
-      return true
-    } else {
-      throw new Error("Token is not valid or refresh token has expired")
-    }
+    return true
+    // if (await this.#checkTokenValidity()) {
+    //   return true
+    // } else {
+    //   throw new Error("Token is not valid or refresh token has expired")
+    // }
   }
 
   async #refreshToken() {
@@ -95,7 +95,7 @@ class Polestar {
 
   async #checkTokenValidity() {
     const response = await axios.get(
-      "https://pc-api.polestar.com/eu-north-1/my-star/?query=query%20introspectToken(%24token%3A%20String!)%20%7B%0A%20%20introspectToken(token%3A%20%24token)%20%7B%0A%20%20%20%20active%0A%20%20%20%20__typename%0A%20%20%7D%0A%7D&operationName=introspectToken&variables=%7B%22token%22%3A%22" +
+      "https://pc-api.polestar.com/eu-north-1/mystar-v2/?query=query%20introspectToken(%24token%3A%20String!)%20%7B%0A%20%20introspectToken(token%3A%20%24token)%20%7B%0A%20%20%20%20active%0A%20%20%20%20__typename%0A%20%20%7D%0A%7D&operationName=introspectToken&variables=%7B%22token%22%3A%22" +
         this.#token.access +
         "%22%7D",
       {
@@ -256,7 +256,7 @@ class Polestar {
       throw new Error("Not authenticated")
     }
     const response = await axios.get(
-      "https://pc-api.polestar.com/eu-north-1/my-star/?query=query%20getCars%20%7B%0A%20%20getConsumerCarsV2%20%7B%0A%20%20%20%20vin%0A%20%20%20%20internalVehicleIdentifier%0A%20%20%20%20modelYear%0A%20%20%20%20content%20%7B%0A%20%20%20%20%20%20model%20%7B%0A%20%20%20%20%20%20%20%20code%0A%20%20%20%20%20%20%20%20name%0A%20%20%20%20%20%20%20%20__typename%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20images%20%7B%0A%20%20%20%20%20%20%20%20studio%20%7B%0A%20%20%20%20%20%20%20%20%20%20url%0A%20%20%20%20%20%20%20%20%20%20angles%0A%20%20%20%20%20%20%20%20%20%20__typename%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20__typename%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20__typename%0A%20%20%20%20%7D%0A%20%20%20%20hasPerformancePackage%0A%20%20%20%20registrationNo%0A%20%20%20%20deliveryDate%0A%20%20%20%20currentPlannedDeliveryDate%0A%20%20%20%20__typename%0A%20%20%7D%0A%7D&operationName=getCars&variables=%7B%7D",
+      "https://pc-api.polestar.com/eu-north-1/mystar-v2/?query=query%20getCars%20%7B%0A%20%20getConsumerCarsV2%20%7B%0A%20%20%20%20vin%0A%20%20%20%20internalVehicleIdentifier%0A%20%20%20%20modelYear%0A%20%20%20%20content%20%7B%0A%20%20%20%20%20%20model%20%7B%0A%20%20%20%20%20%20%20%20code%0A%20%20%20%20%20%20%20%20name%0A%20%20%20%20%20%20%20%20__typename%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20images%20%7B%0A%20%20%20%20%20%20%20%20studio%20%7B%0A%20%20%20%20%20%20%20%20%20%20url%0A%20%20%20%20%20%20%20%20%20%20angles%0A%20%20%20%20%20%20%20%20%20%20__typename%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20__typename%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20__typename%0A%20%20%20%20%7D%0A%20%20%20%20hasPerformancePackage%0A%20%20%20%20registrationNo%0A%20%20%20%20deliveryDate%0A%20%20%20%20currentPlannedDeliveryDate%0A%20%20%20%20__typename%0A%20%20%7D%0A%7D&operationName=getCars&variables=%7B%7D",
       {
         headers: {
           "cache-control": "no-cache",
