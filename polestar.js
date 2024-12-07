@@ -167,7 +167,6 @@ class Polestar {
         },
       }
     )
-    console.log(`response: ${tokenRequestCode}`)
     const data = await response.data
     const apiCreds = data.data.getAuthToken
     return {
@@ -271,6 +270,33 @@ class Polestar {
       }
     )
     const data = await response.data.data.getOdometerData
+    return data
+  }
+
+  async getHealthData() {
+    if (!(await this.#checkAuthenticated())) {
+      throw new Error("Not authenticated")
+    }
+
+    if (!this.#vehicle.vin) {
+      throw new Error("No vehicle selected")
+    }
+
+    const response = await axios.get(
+      "https://pc-api.polestar.com/eu-north-1/mystar-v2?query=query%20GetHealthData(%24vin%3A%20String!)%20%7B%0A%20%20getHealthData(vin%3A%20%24vin)%20%7B%0A%20%20%20%20brakeFluidLevelWarning%0A%20%20%20%20daysToService%0A%20%20%20%20distanceToServiceKm%0A%20%20%20%20engineCoolantLevelWarning%0A%20%20%20%20eventUpdatedTimestamp%20%7B%0A%20%20%20%20%20%20iso%0A%20%20%20%20%20%20unix%0A%20%20%20%20%7D%0A%20%20%20%20oilLevelWarning%0A%20%20%20%20serviceWarning%0A%20%20%7D%0A%7D&operationName=GetHealthData&variables=%7B%22vin%22%3A%22" +
+        this.#vehicle.vin +
+        "%22%7D",
+      {
+        headers: {
+          "cache-control": "no-cache",
+          "content-type": "application/json",
+          Authorization: "Bearer " + this.#token.access,
+          pragma: "no-cache",
+        },
+        maxRedirects: 0,
+      }
+    )
+    const data = await response.data.data.getHealthData
     return data
   }
 }

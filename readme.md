@@ -30,7 +30,7 @@ You can then call `setVehicle()` to select a vehicle for the below methods. You 
 
 `polestar.setVehicle("LPSAAAAAAAA000000")`
 
-Once logged in and a vehicle has been set, you can call `getBattery()` and `getOdometer()` to return vehcile information. 
+Once logged in and a vehicle has been set, you can call `getBattery()`, `getOdometer()` and `getHealthData()` to return vehcile information. 
 
 `console.log(await polestar.getBattery())`
 
@@ -76,6 +76,21 @@ Will return:
 }
 ```
 
+`console.log(await polestar.getHealthData())` 
+
+Will return: 
+
+```json 
+{
+  brakeFluidLevelWarning: 'BRAKE_FLUID_LEVEL_WARNING_NO_WARNING',
+  daysToService: 123,
+  distanceToServiceKm: 12345,
+  engineCoolantLevelWarning: 'ENGINE_COOLANT_LEVEL_WARNING_NO_WARNING',
+  eventUpdatedTimestamp: { iso: '2024-12-06T22:09:34.000Z', unix: '1733522974' },
+  oilLevelWarning: 'OIL_LEVEL_WARNING_NO_WARNING',
+  serviceWarning: 'SERVICE_WARNING_NO_WARNING'
+}
+```
 
 ## Full Example
 
@@ -90,6 +105,7 @@ async function main(){
 
     console.log(await polestar.getBattery())
     console.log(await polestar.getOdometer())
+    console.log(await polestar.getHealthData())
 }
 
 main()
