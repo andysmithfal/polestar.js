@@ -1,6 +1,11 @@
 const axios = require("axios")
-
+const crypto = require("crypto")
 class Polestar {
+  #loginFlowTokens = {
+    state: null,
+    codeVerifier: null,
+    codeChallenge: null,
+  }
   #credentials = {
     email: null,
     password: null,
@@ -26,6 +31,13 @@ class Polestar {
   }
 
   async login() {
+    // Generate tokens required for initial login
+    this.#loginFlowTokens.state = this.#generateState()
+    const { codeVerifier, codeChallenge } = this.#generatePKCE()
+    this.#loginFlowTokens.codeVerifier = codeVerifier
+    this.#loginFlowTokens.codeChallenge = codeChallenge
+
+    // Perform login flow
     const { pathToken, cookie } = await this.#getLoginFlowTokens()
     const tokenRequestCode = await this.#performLogin(pathToken, cookie)
     const apiCreds = await this.#getApiToken(tokenRequestCode)
@@ -33,6 +45,32 @@ class Polestar {
     if (!(await this.#checkAuthenticated())) {
       throw new Error("Login failed, token is not valid")
     }
+  }
+
+  #generateRandomString(length = 43) {
+    const possibleChars =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~"
+    let result = ""
+    for (let i = 0; i < length; i++) {
+      result += possibleChars.charAt(
+        Math.floor(Math.random() * possibleChars.length)
+      )
+    }
+    return result
+  }
+
+  #generatePKCE() {
+    const codeVerifier = this.#generateRandomString()
+    const codeChallenge = crypto
+      .createHash("sha256")
+      .update(codeVerifier)
+      .digest("base64url") // URL-safe Base64 encoding
+    return { codeVerifier, codeChallenge }
+  }
+
+  #generateState() {
+    // Generate a 32-character random hexadecimal string
+    return crypto.randomBytes(16).toString("hex")
   }
 
   async #storeToken(token) {
@@ -115,13 +153,18 @@ class Polestar {
     const requestTokenRegex = /code=([^&]+)/
     const requestTokenMatch = redirectUrl.match(requestTokenRegex)
     const requestToken = requestTokenMatch ? requestTokenMatch[1] : null
-
     return requestToken
   }
 
   async #getLoginFlowTokens() {
+    const state = this.#generateState()
+    const { codeVerifier, codeChallenge } = this.#generatePKCE()
     const response = await axios.get(
-      "https://polestarid.eu.polestar.com/as/authorization.oauth2?response_type=code&client_id=l3oopkc_10&redirect_uri=https%3A%2F%2Fwww.polestar.com%2Fsign-in-callback&scope=openid%20profile%20email%20customer:attributes%20customer:attributes:write&acr_values=urn:volvoid:aal:bronze:any",
+      "https://polestarid.eu.polestar.com/as/authorization.oauth2?client_id=l3oopkc_10&redirect_uri=https%3A%2F%2Fwww.polestar.com%2Fsign-in-callback&response_type=code&scope=openid+profile+email+customer%3Aattributes+customer%3Aattributes%3Awrite&state=" +
+        this.#loginFlowTokens.state +
+        "&code_challenge=" +
+        this.#loginFlowTokens.codeChallenge +
+        "&code_challenge_method=S256&response_mode=query&acr_values=urn%3Avolvoid%3Aaal%3Abronze%3Aany&language=en&market=gb",
       {
         headers: {
           "cache-control": "no-cache",
@@ -137,7 +180,7 @@ class Polestar {
       }
     )
     const data = await response
-    const redirectUrl = response.headers.location
+    const redirectUrl = data.headers.location
     const regex = /resumePath=(\w+)/
     const match = redirectUrl.match(regex)
     const pathToken = match ? match[1] : null
@@ -151,15 +194,21 @@ class Polestar {
   }
 
   async #getApiToken(tokenRequestCode) {
-    const response = await axios.get(
-      "https://pc-api.polestar.com/eu-north-1/auth/?query=query%20getAuthToken(%24code%3A%20String!)%20%7B%0A%20%20getAuthToken(code%3A%20%24code)%20%7B%0A%20%20%20%20id_token%0A%20%20%20%20access_token%0A%20%20%20%20refresh_token%0A%20%20%20%20expires_in%0A%20%20%7D%0A%7D%0A&operationName=getAuthToken&variables=%7B%22code%22%3A%22" +
-        tokenRequestCode +
-        "%22%7D",
+    const tokens = {
+      grant_type: "authorization_code",
+      redirect_uri: "https://www.polestar.com/sign-in-callback",
+      code: tokenRequestCode,
+      code_verifier: this.#loginFlowTokens.codeVerifier,
+      client_id: "l3oopkc_10",
+    }
+    const response = await axios.post(
+      "https://polestarid.eu.polestar.com/as/token.oauth2",
+      tokens,
       {
         headers: {
           "cache-control": "no-cache",
-          "content-type": "application/json",
           pragma: "no-cache",
+          "Content-Type": "application/x-www-form-urlencoded",
         },
         maxRedirects: 0,
         validateStatus: function (status) {
@@ -168,11 +217,10 @@ class Polestar {
       }
     )
     const data = await response.data
-    const apiCreds = data.data.getAuthToken
     return {
-      access_token: apiCreds.access_token,
-      refresh_token: apiCreds.refresh_token,
-      expires_in: apiCreds.expires_in,
+      access_token: data.access_token,
+      refresh_token: data.refresh_token,
+      expires_in: data.expires_in,
     }
   }
 
