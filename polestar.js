@@ -92,8 +92,13 @@ class Polestar {
       throw new Error("Not logged in")
     }
     if (this.#token.expires < new Date()) {
-      const apiCreds = await this.#refreshToken()
-      this.#storeToken(apiCreds)
+      try {
+        const apiCreds = await this.#refreshToken()
+        await this.#storeToken(apiCreds)
+      } catch (error) {
+        console.log("Failed to refresh token, logging in again")
+        await this.login()
+      }
     }
     return true
   }
