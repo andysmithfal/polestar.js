@@ -159,10 +159,8 @@ class Polestar {
       }
     )
 
-    const redirectUrl = response.headers.location
-    const requestTokenRegex = /code=([^&]+)/
-    const requestTokenMatch = redirectUrl.match(requestTokenRegex)
-    const requestToken = requestTokenMatch ? requestTokenMatch[1] : null
+    const url = new URL(response.headers.location);
+    const requestToken = url.searchParams.get("code");
     return requestToken
   }
 
@@ -189,10 +187,10 @@ class Polestar {
         },
       }
     )
-    const data = await response
-    const redirectUrl = data.headers.location
-    const regex = /resumePath=(\w+)/
-    const match = redirectUrl.match(regex)
+   
+    const redirectUrl = response.data.match(/url:\s*"(.+)"/)
+    const resumePath =  redirectUrl ? redirectUrl[1] : null
+    const match = resumePath.match(/\/as\/(.*?)\/resume/);
     const pathToken = match ? match[1] : null
     const cookies = response.headers["set-cookie"]
     const cookie = cookies[0].split("; ")[0] + ";"
