@@ -112,8 +112,8 @@ class Polestar {
     const response = await axios.post(
       "https://pc-api.polestar.com/eu-north-1/auth",
       '{"query":"\\n  query refreshAuthToken($token: String!) {\\n    refreshAuthToken(token: $token) {\\n      access_token\\n      expires_in\\n      id_token\\n      refresh_token\\n    }\\n  }\\n","variables":{"token":"' +
-      this.#token.refresh +
-      '"}}',
+        this.#token.refresh +
+        '"}}',
       {
         headers: {
           "cache-control": "no-cache",
@@ -139,8 +139,8 @@ class Polestar {
   async #performLogin(pathToken, cookie) {
     const response = await axios.post(
       "https://polestarid.eu.polestar.com/as/" +
-      pathToken +
-      "/resume/as/authorization.ping?client_id=l3oopkc_10",
+        pathToken +
+        "/resume/as/authorization.ping?client_id=l3oopkc_10",
       {
         "pf.username": this.#credentials.email,
         "pf.pass": this.#credentials.password,
@@ -159,8 +159,10 @@ class Polestar {
       }
     )
 
-    const url = new URL(response.headers.location);
-    const requestToken = url.searchParams.get("code");
+    const redirectUrl = response.headers.location
+    const requestTokenRegex = /code=([^&]+)/
+    const requestTokenMatch = redirectUrl.match(requestTokenRegex)
+    const requestToken = requestTokenMatch ? requestTokenMatch[1] : null
     return requestToken
   }
 
@@ -169,10 +171,10 @@ class Polestar {
     const { codeVerifier, codeChallenge } = this.#generatePKCE()
     const response = await axios.get(
       "https://polestarid.eu.polestar.com/as/authorization.oauth2?client_id=l3oopkc_10&redirect_uri=https%3A%2F%2Fwww.polestar.com%2Fsign-in-callback&response_type=code&scope=openid+profile+email+customer%3Aattributes+customer%3Aattributes%3Awrite&state=" +
-      this.#loginFlowTokens.state +
-      "&code_challenge=" +
-      this.#loginFlowTokens.codeChallenge +
-      "&code_challenge_method=S256&response_mode=query&acr_values=urn%3Avolvoid%3Aaal%3Abronze%3Aany&language=en&market=gb",
+        this.#loginFlowTokens.state +
+        "&code_challenge=" +
+        this.#loginFlowTokens.codeChallenge +
+        "&code_challenge_method=S256&response_mode=query&acr_values=urn%3Avolvoid%3Aaal%3Abronze%3Aany&language=en&market=gb",
       {
         headers: {
           "cache-control": "no-cache",
@@ -187,10 +189,9 @@ class Polestar {
         },
       }
     )
-   
-    const redirectUrl = response.data.match(/url:\s*"(.+)"/)
-    const resumePath =  redirectUrl ? redirectUrl[1] : null
-    const match = resumePath.match(/\/as\/(.*?)\/resume/);
+    const data = await response
+    const regex = /action: "\/as\/([^\/]+)\/resume\/as\/authorization\.ping"/
+    const match = response.data.match(regex)
     const pathToken = match ? match[1] : null
     const cookies = response.headers["set-cookie"]
     const cookie = cookies[0].split("; ")[0] + ";"
@@ -284,17 +285,17 @@ class Polestar {
       throw new Error("No vehicle selected")
     }
 
-    const now = new Date();
+    const now = new Date()
 
     if (
       !this.#telematics.lastUpdatedAt ||
-      (now - new Date(this.#telematics.lastUpdatedAt)) > 5 * 60 * 1000
+      now - new Date(this.#telematics.lastUpdatedAt) > 5 * 60 * 1000
     ) {
       // Get telematics data
       const response = await axios.get(
         "https://pc-api.polestar.com/eu-north-1/mystar-v2?query=query%20CarTelematics(%24vin%3A%20String!)%20%7B%0A%20%20carTelematics(vin%3A%20%24vin)%20%7B%0A%20%20%20%20health%20%7B%0A%20%20%20%20%20%20brakeFluidLevelWarning%0A%20%20%20%20%20%20daysToService%0A%20%20%20%20%20%20distanceToServiceKm%0A%20%20%20%20%20%20engineCoolantLevelWarning%0A%20%20%20%20%20%20eventUpdatedTimestamp%20%7B%0A%20%20%20%20%20%20%20%20iso%0A%20%20%20%20%20%20%20%20unix%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20oilLevelWarning%0A%20%20%20%20%20%20serviceWarning%0A%20%20%20%20%7D%0A%20%20%20%20battery%20%7B%0A%20%20%20%20%20%20averageEnergyConsumptionKwhPer100Km%0A%20%20%20%20%20%20batteryChargeLevelPercentage%0A%20%20%20%20%20%20chargerConnectionStatus%0A%20%20%20%20%20%20chargingCurrentAmps%0A%20%20%20%20%20%20chargingPowerWatts%0A%20%20%20%20%20%20chargingStatus%0A%20%20%20%20%20%20estimatedChargingTimeMinutesToTargetDistance%0A%20%20%20%20%20%20estimatedChargingTimeToFullMinutes%0A%20%20%20%20%20%20estimatedDistanceToEmptyKm%0A%20%20%20%20%20%20estimatedDistanceToEmptyMiles%0A%20%20%20%20%20%20eventUpdatedTimestamp%20%7B%0A%20%20%20%20%20%20%20%20iso%0A%20%20%20%20%20%20%20%20unix%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%20%20%20%20odometer%20%7B%0A%20%20%20%20%20%20averageSpeedKmPerHour%0A%20%20%20%20%20%20eventUpdatedTimestamp%20%7B%0A%20%20%20%20%20%20%20%20iso%0A%20%20%20%20%20%20%20%20unix%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20odometerMeters%0A%20%20%20%20%20%20tripMeterAutomaticKm%0A%20%20%20%20%20%20tripMeterManualKm%0A%20%20%20%20%7D%0A%20%20%7D%0A%7D&operationName=CarTelematics&variables=%7B%22vin%22%3A%22" +
-        this.#vehicle.vin +
-        "%22%7D",
+          this.#vehicle.vin +
+          "%22%7D",
         {
           headers: {
             "cache-control": "no-cache",
