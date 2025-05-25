@@ -291,11 +291,83 @@ class Polestar {
       !this.#telematics.lastUpdatedAt ||
       now - new Date(this.#telematics.lastUpdatedAt) > 5 * 60 * 1000
     ) {
+      const queryV2 ="query CarTelematicsV2($vins: [String!]!) {\n"+
+      "  carTelematicsV2(vins: $vins) {\n"+
+      "    health {\n"+
+      "      vin\n"+
+      "      brakeFluidLevelWarning\n"+
+      "      daysToService\n"+
+      "      distanceToServiceKm\n"+
+      "      engineCoolantLevelWarning\n"+
+      "      oilLevelWarning\n"+
+      "      serviceWarning\n"+
+      "      timestamp { seconds nanos }\n"+
+      "    }\n"+
+      "    battery {\n"+
+      "      vin\n"+
+      "      batteryChargeLevelPercentage\n"+
+      "      chargingStatus\n"+
+      "      estimatedChargingTimeToFullMinutes\n"+
+      "      estimatedDistanceToEmptyKm\n"+
+      "      timestamp { seconds nanos }\n"+
+      "    }\n"+
+      "    odometer {\n"+
+      "      vin\n"+
+      "      odometerMeters\n"+
+      "      timestamp { seconds nanos }\n"+
+      "    }\n"+
+      "  }\n"+
+      "}"
+      // const query = "query CarTelematics($vin: String!) {\n" + 
+      //   "  carTelematics(vin: $vin) {\n"+
+      //   "    health {\n"+
+      //   "      brakeFluidLevelWarning\n"+
+      //   "      daysToService\n"+
+      //   "      distanceToServiceKm\n"+
+      //   "      engineCoolantLevelWarning\n"+
+      //   "      eventUpdatedTimestamp {\n"+
+      //   "        iso\n"+
+      //   "        unix\n"+
+      //   "      }\n"+
+      //   "      oilLevelWarning\n"+
+      //   "      serviceWarning\n"+
+      //   "    }\n"+
+      //   "    battery {\n"+
+      //   "      averageEnergyConsumptionKwhPer100Km\n"+
+      //   "      batteryChargeLevelPercentage\n"+
+      //   "      chargerConnectionStatus\n"+
+      //   "      chargingCurrentAmps\n"+
+      //   "      chargingPowerWatts\n"+
+      //   "      chargingStatus\n"+
+      //   "      estimatedChargingTimeMinutesToTargetDistance\n"+
+      //   "      estimatedChargingTimeToFullMinutes\n"+
+      //   "      estimatedDistanceToEmptyKm\n"+
+      //   "      estimatedDistanceToEmptyMiles\n"+
+      //   "      eventUpdatedTimestamp {\n"+
+      //   "        iso\n"+
+      //   "        unix\n"+
+      //   "      }\n"+
+      //   "    }\n"+
+      //   "    odometer {\n"+
+      //   "      averageSpeedKmPerHour\n"+
+      //   "      eventUpdatedTimestamp {\n"+
+      //   "        iso\n"+
+      //   "        unix\n"+
+      //   "      }\n"+
+      //   "      odometerMeters\n"+
+      //   "      tripMeterAutomaticKm\n"+
+      //   "      tripMeterManualKm\n"+
+      //   "    }\n"+
+      //   "  }\n"+
+      //   "}";
       // Get telematics data
-      const response = await axios.get(
-        "https://pc-api.polestar.com/eu-north-1/mystar-v2?query=query%20CarTelematics(%24vin%3A%20String!)%20%7B%0A%20%20carTelematics(vin%3A%20%24vin)%20%7B%0A%20%20%20%20health%20%7B%0A%20%20%20%20%20%20brakeFluidLevelWarning%0A%20%20%20%20%20%20daysToService%0A%20%20%20%20%20%20distanceToServiceKm%0A%20%20%20%20%20%20engineCoolantLevelWarning%0A%20%20%20%20%20%20eventUpdatedTimestamp%20%7B%0A%20%20%20%20%20%20%20%20iso%0A%20%20%20%20%20%20%20%20unix%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20oilLevelWarning%0A%20%20%20%20%20%20serviceWarning%0A%20%20%20%20%7D%0A%20%20%20%20battery%20%7B%0A%20%20%20%20%20%20averageEnergyConsumptionKwhPer100Km%0A%20%20%20%20%20%20batteryChargeLevelPercentage%0A%20%20%20%20%20%20chargerConnectionStatus%0A%20%20%20%20%20%20chargingCurrentAmps%0A%20%20%20%20%20%20chargingPowerWatts%0A%20%20%20%20%20%20chargingStatus%0A%20%20%20%20%20%20estimatedChargingTimeMinutesToTargetDistance%0A%20%20%20%20%20%20estimatedChargingTimeToFullMinutes%0A%20%20%20%20%20%20estimatedDistanceToEmptyKm%0A%20%20%20%20%20%20estimatedDistanceToEmptyMiles%0A%20%20%20%20%20%20eventUpdatedTimestamp%20%7B%0A%20%20%20%20%20%20%20%20iso%0A%20%20%20%20%20%20%20%20unix%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%20%20%20%20odometer%20%7B%0A%20%20%20%20%20%20averageSpeedKmPerHour%0A%20%20%20%20%20%20eventUpdatedTimestamp%20%7B%0A%20%20%20%20%20%20%20%20iso%0A%20%20%20%20%20%20%20%20unix%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20odometerMeters%0A%20%20%20%20%20%20tripMeterAutomaticKm%0A%20%20%20%20%20%20tripMeterManualKm%0A%20%20%20%20%7D%0A%20%20%7D%0A%7D&operationName=CarTelematics&variables=%7B%22vin%22%3A%22" +
+      const getUrl =  "https://pc-api.polestar.com/eu-north-1/mystar-v2?query="+encodeURIComponent(queryV2)+
+        "&operationName=CarTelematicsV2&variables=%7B%22vins%22%3A%22" +
           this.#vehicle.vin +
-          "%22%7D",
+          "%22%7D"
+
+      const response = await axios.get(getUrl
+       ,
         {
           headers: {
             "cache-control": "no-cache",
@@ -306,25 +378,25 @@ class Polestar {
           maxRedirects: 0,
         }
       )
-      const data = await response.data.data.carTelematics
-      this.#telematics.telematicsData = data
+
+      this.#telematics.telematicsData = await response.data.data.carTelematicsV2;
       this.#telematics.lastUpdatedAt = new Date().toISOString()
     }
   }
 
   async getBattery() {
     await this.#getTelematicsData()
-    return this.#telematics.telematicsData.battery
+    return this.#telematics.telematicsData.battery.find(item => item.vin === this.#vehicle.vin);
   }
 
   async getOdometer() {
     await this.#getTelematicsData()
-    return this.#telematics.telematicsData.odometer
+    return this.#telematics.telematicsData.odometer.find(item => item.vin === this.#vehicle.vin)
   }
 
   async getHealthData() {
     await this.#getTelematicsData()
-    return this.#telematics.telematicsData.health
+    return this.#telematics.telematicsData.health.find(item => item.vin === this.#vehicle.vin)
   }
 }
 
