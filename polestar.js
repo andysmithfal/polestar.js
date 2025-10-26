@@ -237,8 +237,25 @@ class Polestar {
     if (!(await this.#checkAuthenticated())) {
       throw new Error("Not authenticated")
     }
+    const query = `query getCars {
+  getConsumerCarsV2 {
+    vin
+    internalVehicleIdentifier
+    modelYear
+    content {
+      model {
+        code
+        name
+      }
+    }
+    hasPerformancePackage
+    registrationNo
+    deliveryDate
+    currentPlannedDeliveryDate
+  }
+}`
     const response = await axios.get(
-      "https://pc-api.polestar.com/eu-north-1/mystar-v2/?query=query%20getCars%20%7B%0A%20%20getConsumerCarsV2%20%7B%0A%20%20%20%20vin%0A%20%20%20%20internalVehicleIdentifier%0A%20%20%20%20modelYear%0A%20%20%20%20content%20%7B%0A%20%20%20%20%20%20model%20%7B%0A%20%20%20%20%20%20%20%20code%0A%20%20%20%20%20%20%20%20name%0A%20%20%20%20%20%20%20%20__typename%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20images%20%7B%0A%20%20%20%20%20%20%20%20studio%20%7B%0A%20%20%20%20%20%20%20%20%20%20url%0A%20%20%20%20%20%20%20%20%20%20angles%0A%20%20%20%20%20%20%20%20%20%20__typename%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20__typename%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20__typename%0A%20%20%20%20%7D%0A%20%20%20%20hasPerformancePackage%0A%20%20%20%20registrationNo%0A%20%20%20%20deliveryDate%0A%20%20%20%20currentPlannedDeliveryDate%0A%20%20%20%20__typename%0A%20%20%7D%0A%7D&operationName=getCars&variables=%7B%7D",
+      "https://pc-api.polestar.com/eu-north-1/mystar-v2/?query=" + encodeURIComponent(query) + "&operationName=getCars&variables=%7B%7D",
       {
         headers: {
           "cache-control": "no-cache",
@@ -249,9 +266,22 @@ class Polestar {
         maxRedirects: 0,
       }
     )
+
+    // Check for GraphQL errors
+    if (response.data.errors) {
+      const errorMessages = response.data.errors.map(err => err.message).join(', ')
+      throw new Error(`GraphQL errors: ${errorMessages}`)
+    }
+
+    // Check for data
+    if (!response.data.data) {
+      throw new Error("No data returned from API")
+    }
+
     if (!response.data.data.getConsumerCarsV2) {
       throw new Error("No vehicles found")
     }
+
     const vehicles = response.data.data.getConsumerCarsV2
     return vehicles
   }
@@ -397,6 +427,20 @@ class Polestar {
   async getHealthData() {
     await this.#getTelematicsData()
     return this.#telematics.telematicsData.health.find(item => item.vin === this.#vehicle.vin)
+  }
+
+  /**
+   * Get the current access token (for debugging/testing purposes)
+   */
+  getAccessToken() {
+    return this.#token.access
+  }
+
+  /**
+   * Get the current vehicle VIN (for debugging/testing purposes)
+   */
+  getVehicleVin() {
+    return this.#vehicle.vin
   }
 }
 
