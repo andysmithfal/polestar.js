@@ -237,25 +237,27 @@ class Polestar {
     if (!(await this.#checkAuthenticated())) {
       throw new Error("Not authenticated")
     }
-    const query = `query getCars {
-  getConsumerCarsV2 {
+    const query = `query GetConsumerCarsV2($locale: String) {
+  getConsumerCarsV2(locale: $locale) {
     vin
     internalVehicleIdentifier
-    modelYear
-    content {
-      model {
-        code
-        name
-      }
-    }
-    hasPerformancePackage
     registrationNo
-    deliveryDate
+    market
+    originalMarket
     currentPlannedDeliveryDate
+    deliveryDate
+    edition
+    pno34
+    modelName
+    modelYear
+    commercialModelYear
+    computedModelYear
+    structureWeek
+    userIsPrimaryDriver
   }
 }`
     const response = await axios.get(
-      "https://pc-api.polestar.com/eu-north-1/mystar-v2/?query=" + encodeURIComponent(query) + "&operationName=getCars&variables=%7B%7D",
+      "https://pc-api.polestar.com/eu-north-1/mystar-v2/?query=" + encodeURIComponent(query) + "&operationName=GetConsumerCarsV2&variables=%7B%7D",
       {
         headers: {
           "cache-control": "no-cache",

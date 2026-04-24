@@ -24,13 +24,35 @@ You will then need to select a vehicle. `getVehicles()` will return an array of 
 
 `const vehicles = await polestar.getVehicles()`
 
+Each vehicle object looks like:
+
+```json
+{
+  "vin": "LPSAAAAAAAA000000",
+  "internalVehicleIdentifier": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+  "registrationNo": "AB12 CDE",
+  "market": "GB",
+  "originalMarket": "GB",
+  "currentPlannedDeliveryDate": null,
+  "deliveryDate": "2023-01-01",
+  "edition": "Standard",
+  "pno34": "XXXXXXXXXX",
+  "modelName": "Polestar 2",
+  "modelYear": 2023,
+  "commercialModelYear": 2023,
+  "computedModelYear": 2023,
+  "structureWeek": "202301",
+  "userIsPrimaryDriver": true
+}
+```
+
 You can then call `setVehicle()` to select a vehicle for the below methods. You can call this without any arguments to automatically select the first/only vehicle on the account, or you can specify a VIN as an argument. 
 
 `polestar.setVehicle()`
 
 `polestar.setVehicle("LPSAAAAAAAA000000")`
 
-Once logged in and a vehicle has been set, you can call `getBattery()`, `getOdometer()` and `getHealthData()` to return vehcile information. 
+Once logged in and a vehicle has been set, you can call `getBattery()`, `getOdometer()` and `getHealthData()` to return vehicle information. 
 
 `console.log(await polestar.getBattery())`
 
@@ -38,22 +60,15 @@ Returns this:
 
 ```json
 {
-  averageEnergyConsumptionKwhPer100Km: 23,
-  batteryChargeLevelPercentage: 83,
-  chargerConnectionStatus: 'CHARGER_CONNECTION_STATUS_DISCONNECTED',
-  chargingCurrentAmps: null,
-  chargingPowerWatts: null,
-  chargingStatus: 'CHARGING_STATUS_IDLE',
-  estimatedChargingTimeMinutesToTargetDistance: null,
-  estimatedChargingTimeToFullMinutes: 0,
-  estimatedDistanceToEmptyKm: 320,
-  estimatedDistanceToEmptyMiles: 190,
-  eventUpdatedTimestamp: {
-    iso: '2023-12-18T00:00:00.000Z',
-    unix: '1702857600',
-    __typename: 'EventUpdatedTimestamp'
-  },
-  __typename: 'Battery'
+  "vin": "LPSAAAAAAAA000000",
+  "batteryChargeLevelPercentage": 83,
+  "chargingStatus": "CHARGING_STATUS_IDLE",
+  "estimatedChargingTimeToFullMinutes": 0,
+  "estimatedDistanceToEmptyKm": 320,
+  "timestamp": {
+    "seconds": 1702857600,
+    "nanos": 0
+  }
 }
 ```
 
@@ -63,16 +78,12 @@ Will return:
 
 ```json
 {
-  averageSpeedKmPerHour: 30,
-  eventUpdatedTimestamp: {
-    iso: '2023-12-18T00:00:00.000Z',
-    unix: '1702857600',
-    __typename: 'EventUpdatedTimestamp'
-  },
-  odometerMeters: 12345678,
-  tripMeterAutomaticKm: 10,
-  tripMeterManualKm: 1000,
-  __typename: 'Odometer'
+  "vin": "LPSAAAAAAAA000000",
+  "odometerMeters": 12345678,
+  "timestamp": {
+    "seconds": 1702857600,
+    "nanos": 0
+  }
 }
 ```
 
@@ -80,15 +91,19 @@ Will return:
 
 Will return: 
 
-```json 
+```json
 {
-  brakeFluidLevelWarning: 'BRAKE_FLUID_LEVEL_WARNING_NO_WARNING',
-  daysToService: 123,
-  distanceToServiceKm: 12345,
-  engineCoolantLevelWarning: 'ENGINE_COOLANT_LEVEL_WARNING_NO_WARNING',
-  eventUpdatedTimestamp: { iso: '2024-12-06T22:09:34.000Z', unix: '1733522974' },
-  oilLevelWarning: 'OIL_LEVEL_WARNING_NO_WARNING',
-  serviceWarning: 'SERVICE_WARNING_NO_WARNING'
+  "vin": "LPSAAAAAAAA000000",
+  "brakeFluidLevelWarning": "BRAKE_FLUID_LEVEL_WARNING_NO_WARNING",
+  "daysToService": 123,
+  "distanceToServiceKm": 12345,
+  "engineCoolantLevelWarning": "ENGINE_COOLANT_LEVEL_WARNING_NO_WARNING",
+  "oilLevelWarning": "OIL_LEVEL_WARNING_NO_WARNING",
+  "serviceWarning": "SERVICE_WARNING_NO_WARNING",
+  "timestamp": {
+    "seconds": 1733522974,
+    "nanos": 0
+  }
 }
 ```
 
