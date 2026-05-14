@@ -304,6 +304,7 @@ class Polestar {
     }
     this.#vehicle.vin = vehicle.vin
     this.#vehicle.id = vehicle.internalVehicleIdentifier
+    this.#telematics.lastUpdatedAt = null
 
     return this.#vehicle
   }
